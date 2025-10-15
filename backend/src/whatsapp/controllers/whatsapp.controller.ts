@@ -20,10 +20,8 @@ export class WhatsappController {
   }
 
   @Post('send')
-  @HttpCode(HttpStatus.OK)
-  async sendMessage(@Body() sendMessageDto: SendMessageDto) {
-    const { phone, message } = sendMessageDto;
-    return await this.messagingService.sendMessage(phone, message);
+  async sendMessage(@Body() body: { phone: string; message: string }) {
+    return this.messagingService.sendMessage(body.phone, body.message);
   }
 
   @Post('broadcast')

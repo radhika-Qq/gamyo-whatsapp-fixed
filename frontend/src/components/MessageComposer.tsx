@@ -3,103 +3,93 @@ import {
   TextField,
   Button,
   Box,
+  Typography,
   Alert,
   CircularProgress,
   Snackbar,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import axios from 'axios';
 
 const API_URL = 'http://localhost:3000';
 
 export default function MessageComposer() {
-  const [phone, setPhone] = useState('');
-  const [message, setMessage] = useState('');
+  const [phone, setPhone] = useState('916300338763'); // Default to your allowed number
+  const [message, setMessage] = useState('Hello from Gamyo.ai!');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [response, setResponse] = useState<any>(null);
 
   const handleSend = async () => {
-    if (!phone || !message) {
-      setError('Please fill in all fields');
-      return;
-    }
-
     setLoading(true);
     setError(null);
-
+    setResponse(null);
+    
     try {
-      const response = await axios.post(`${API_URL}/whatsapp/send`, {
-        phone,
-        message,
+      const res = await fetch(`${API_URL}/whatsapp/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, message }),
       });
-
-      console.log('Message sent:', response.data);
-      setSuccess(true);
-      
-      // Clear form
-      setPhone('');
-      setMessage('');
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to send message');
+      setResponse(data);
     } catch (err: any) {
       console.error('Failed to send message:', err);
-      setError(err.response?.data?.message || 'Failed to send message. Please try again.');
+      setError(err.message || 'Failed to send message. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Box>
+    <Box sx={{ p: 2 }}>
+      <Typography variant="h6" gutterBottom>
+        Send WhatsApp Message
+      </Typography>
       <TextField
-        label="Phone Number (with country code, e.g., 919876543210)"
+        label="Phone Number"
         value={phone}
-        onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+        onChange={(e) => setPhone(e.target.value)}
         fullWidth
         margin="normal"
-        placeholder="919876543210"
-        helperText="Enter phone number without + or spaces"
+        placeholder="e.g., 916300338763"
         disabled={loading}
       />
-      
       <TextField
-        label="Message"
+        label="Message (Note: Will send 'hello_world' template)"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         fullWidth
         margin="normal"
         multiline
         rows={4}
-        placeholder="Type your message here..."
         disabled={loading}
+        helperText="Currently sends the 'hello_world' template message regardless of input"
       />
-
-      {error && (
-        <Alert severity="error" sx={{ mt: 2 }}>
-          {error}
-        </Alert>
-      )}
-
       <Button
         variant="contained"
         onClick={handleSend}
-        disabled={loading || !phone || !message}
+        disabled={loading}
         startIcon={loading ? <CircularProgress size={20} /> : <SendIcon />}
         sx={{ mt: 2 }}
         fullWidth
       >
         {loading ? 'Sending...' : 'Send Message'}
       </Button>
-
-      <Snackbar
-        open={success}
-        autoHideDuration={6000}
-        onClose={() => setSuccess(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      >
-        <Alert onClose={() => setSuccess(false)} severity="success" sx={{ width: '100%' }}>
-          Message sent successfully!
-        </Alert>
-      </Snackbar>
+      {response && (
+        <Box sx={{ mt: 2, p: 2, bgcolor: 'success.light', borderRadius: 1 }}>
+          <Typography variant="body2" color="success.contrastText">
+            Success! Message ID: {response.messages[0].id}
+          </Typography>
+        </Box>
+      )}
+      {error && (
+        <Box sx={{ mt: 2, p: 2, bgcolor: 'error.light', borderRadius: 1 }}>
+          <Typography variant="body2" color="error.contrastText">
+            Error: {error}
+          </Typography>
+        </Box>
+      )}
     </Box>
   );
 }

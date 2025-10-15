@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Container,
   CssBaseline,
@@ -6,11 +6,16 @@ import {
   Toolbar,
   Typography,
   Box,
-  Paper,
   ThemeProvider,
   createTheme,
+  Tabs,
+  Tab,
+  Paper,
 } from '@mui/material';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import MessageIcon from '@mui/icons-material/Message';
+import CampaignIcon from '@mui/icons-material/Campaign';
+import AnnouncementIcon from '@mui/icons-material/Announcement';
 import MessageComposer from './components/MessageComposer';
 import BroadcastComposer from './components/BroadcastComposer';
 import ChannelManager from './components/ChannelManager';
@@ -27,6 +32,12 @@ const theme = createTheme({
 });
 
 function App() {
+  const [activeTab, setActiveTab] = useState(0);
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -35,49 +46,46 @@ function App() {
           <Toolbar>
             <WhatsAppIcon sx={{ mr: 2 }} />
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Gamyo WhatsApp Business API Prototype
+              Gamyo WhatsApp Business API
             </Typography>
           </Toolbar>
         </AppBar>
 
-        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h4" gutterBottom>
-              WhatsApp Integration Demo
-            </Typography>
-            <Typography variant="body1" color="text.secondary" paragraph>
-              Test 1:1 messaging, broadcasts, and channel updates using WhatsApp Business API
-            </Typography>
-          </Box>
+        <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+          <Typography variant="h4" gutterBottom align="center">
+            WhatsApp Business Messaging
+          </Typography>
+          
+          <Paper sx={{ mt: 3 }}>
+            <Tabs
+              value={activeTab}
+              onChange={handleTabChange}
+              variant="fullWidth"
+              indicatorColor="primary"
+              textColor="primary"
+            >
+              <Tab 
+                icon={<MessageIcon />} 
+                label="1:1 Messaging" 
+                iconPosition="start"
+              />
+              <Tab 
+                icon={<CampaignIcon />} 
+                label="Broadcast Messaging" 
+                iconPosition="start"
+              />
+              <Tab 
+                icon={<AnnouncementIcon />} 
+                label="Channel Messaging" 
+                iconPosition="start"
+              />
+            </Tabs>
 
-          <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
-            <Typography variant="h5" gutterBottom color="primary">
-              1:1 Messaging
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Send individual messages to WhatsApp users
-            </Typography>
-            <MessageComposer />
-          </Paper>
-
-          <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
-            <Typography variant="h5" gutterBottom color="primary">
-              Broadcast Messages
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Send bulk messages to multiple contacts (requires opt-in)
-            </Typography>
-            <BroadcastComposer />
-          </Paper>
-
-          <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
-            <Typography variant="h5" gutterBottom color="primary">
-              Channel Updates
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Post updates to your WhatsApp Channel
-            </Typography>
-            <ChannelManager />
+            <Box sx={{ p: 3 }}>
+              {activeTab === 0 && <MessageComposer />}
+              {activeTab === 1 && <BroadcastComposer />}
+              {activeTab === 2 && <ChannelManager />}
+            </Box>
           </Paper>
         </Container>
       </Box>

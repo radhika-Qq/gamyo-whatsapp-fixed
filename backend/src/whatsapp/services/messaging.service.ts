@@ -19,36 +19,46 @@ export class MessagingService {
     @InjectRepository(SentMessage)
     private readonly sentMessageRepository: Repository<SentMessage>,
   ) {
-    this.WHATSAPP_API_URL = this.configService.get('WHATSAPP_API_URL', 'https://graph.facebook.com/v18.0');
-    this.PHONE_NUMBER_ID = this.configService.get('WHATSAPP_PHONE_NUMBER_ID', 'YOUR_PHONE_NUMBER_ID');
+    this.WHATSAPP_API_URL = this.configService.get('WHATSAPP_API_URL', 'https://graph.facebook.com/v22.0');
+    this.PHONE_NUMBER_ID = this.configService.get('WHATSAPP_PHONE_NUMBER_ID', '875695182288780');
     this.ACCESS_TOKEN = this.configService.get('WHATSAPP_ACCESS_TOKEN', 'YOUR_ACCESS_TOKEN');
   }
 
+  private validatePhone(phone: string): string {
+    // Remove sandbox validation - allow any phone number that's in Meta's allowed list
+    return phone;
+  }
+
   async sendMessage(phone: string, message: string): Promise<any> {
+    const validatedPhone = this.validatePhone(phone);
+
+    const url = `${this.WHATSAPP_API_URL}/${this.PHONE_NUMBER_ID}/messages`;
+    const payload = {
+      messaging_product: 'whatsapp',
+      to: validatedPhone,
+      type: 'template',
+      template: {
+        name: 'hello_world',
+        language: {
+          code: 'en_US'
+        }
+      }
+    };
+
     try {
-      const url = `${this.WHATSAPP_API_URL}/${this.PHONE_NUMBER_ID}/messages`;
-      
-      const payload = {
-        messaging_product: 'whatsapp',
-        to: phone,
-        type: 'text',
-        text: { body: message },
-      };
-
-      this.logger.log(`Sending message to ${phone}`);
-
       const { data } = await firstValueFrom(
         this.httpService.post(url, payload, {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${this.ACCESS_TOKEN}`,
             'Content-Type': 'application/json',
           },
         }),
       );
+      this.logger.log(`Message sent to ${validatedPhone}: ${data.messages[0].id}`);
 
       // Log message to database
       const sentMessage = this.sentMessageRepository.create({
-        phone,
+        phone: validatedPhone,
         message,
         whatsappMessageId: data.messages?.[0]?.id,
         status: 'sent',
@@ -56,14 +66,15 @@ export class MessagingService {
       });
       await this.sentMessageRepository.save(sentMessage);
 
-      this.logger.log(`Message sent successfully to ${phone}`);
       return data;
     } catch (error) {
-      this.logger.error(`Failed to send message to ${phone}:`, error.response?.data || error.message);
+      this.logger.error(
+        `Failed to send message to ${validatedPhone}: ${JSON.stringify(error.response?.data, null, 2)}`,
+      );
       
       // Log failed message
       const sentMessage = this.sentMessageRepository.create({
-        phone,
+        phone: validatedPhone,
         message,
         status: 'failed',
         errorMessage: error.response?.data?.error?.message || error.message,
