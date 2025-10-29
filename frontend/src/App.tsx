@@ -13,20 +13,22 @@ import {
   Paper,
 } from '@mui/material';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import MessageIcon from '@mui/icons-material/Message';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import AnnouncementIcon from '@mui/icons-material/Announcement';
 import MessageComposer from './components/MessageComposer';
 import BroadcastComposer from './components/BroadcastComposer';
 import ChannelManager from './components/ChannelManager';
+import LinkedInComposer from './components/LinkedInComposer';
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#25D366', // WhatsApp green
+      main: '#0A66C2', // LinkedIn blue
     },
     secondary: {
-      main: '#128C7E',
+      main: '#25D366', // WhatsApp green
     },
   },
 });
@@ -44,16 +46,17 @@ function App() {
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static">
           <Toolbar>
-            <WhatsAppIcon sx={{ mr: 2 }} />
+            <WhatsAppIcon sx={{ mr: 1 }} />
+            <LinkedInIcon sx={{ mr: 2 }} />
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Gamyo WhatsApp Business API
+              Gamyo Multi-Platform Integration
             </Typography>
           </Toolbar>
         </AppBar>
 
         <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
           <Typography variant="h4" gutterBottom align="center">
-            WhatsApp Business Messaging
+            Social Media & Messaging Platform
           </Typography>
           
           <Paper sx={{ mt: 3 }}>
@@ -65,26 +68,32 @@ function App() {
               textColor="primary"
             >
               <Tab 
+                icon={<LinkedInIcon />} 
+                label="LinkedIn" 
+                iconPosition="start"
+              />
+              <Tab 
                 icon={<MessageIcon />} 
-                label="1:1 Messaging" 
+                label="WhatsApp 1:1" 
                 iconPosition="start"
               />
               <Tab 
                 icon={<CampaignIcon />} 
-                label="Broadcast Messaging" 
+                label="WhatsApp Broadcast" 
                 iconPosition="start"
               />
               <Tab 
                 icon={<AnnouncementIcon />} 
-                label="Channel Messaging" 
+                label="WhatsApp Channel" 
                 iconPosition="start"
               />
             </Tabs>
 
             <Box sx={{ p: 3 }}>
-              {activeTab === 0 && <MessageComposer />}
-              {activeTab === 1 && <BroadcastComposer />}
-              {activeTab === 2 && <ChannelManager />}
+              {activeTab === 0 && <LinkedInComposer />}
+              {activeTab === 1 && <MessageComposer />}
+              {activeTab === 2 && <BroadcastComposer />}
+              {activeTab === 3 && <ChannelManager />}
             </Box>
           </Paper>
         </Container>

@@ -1,15 +1,25 @@
-# Gamyo WhatsApp Business API Integration
+# Gamyo Multi-Platform Integration
 
-A complete WhatsApp Business API integration prototype featuring **1:1 messaging**, **broadcast messaging**, and **channel updates**. Built with NestJS backend and React frontend.
+A complete multi-platform messaging integration featuring **WhatsApp Business API** and **LinkedIn** integrations. Built with NestJS backend and React frontend.
 
 ## 🚀 Features
 
+### WhatsApp Business Integration
 - **1:1 Messaging** - Send individual messages to WhatsApp users
 - **Broadcast Messages** - Send bulk messages to multiple contacts with opt-in compliance
 - **Channel Updates** - Post announcements to your WhatsApp Channel
 - **Webhook Integration** - Receive and process incoming messages and delivery status
 - **Message Tracking** - Complete database logging of all sent messages
-- **Modern UI** - Beautiful Material-UI interface with WhatsApp theming
+
+### LinkedIn Integration ✨ NEW
+- **Post Publishing** - Publish posts to LinkedIn company pages
+- **Media Upload** - Upload and attach images to posts
+- **Organization Management** - Manage LinkedIn company page content
+- **API Integration** - Full LinkedIn API v2 integration
+
+### Common Features
+- **Modern UI** - Beautiful Material-UI interface with platform-specific theming
+- **Modular Architecture** - Easy to extend with additional platforms (Instagram, Facebook, etc.)
 
 ## 📋 Tech Stack
 
@@ -37,7 +47,8 @@ A complete WhatsApp Business API integration prototype featuring **1:1 messaging
 
 - **Node.js v18+** - [Download](https://nodejs.org/)
 - **Docker Desktop** - [Download](https://www.docker.com/products/docker-desktop)
-- **Meta Developer Account** - [Sign up](https://developers.facebook.com/)
+- **Meta Developer Account** - [Sign up](https://developers.facebook.com/) *(for WhatsApp)*
+- **LinkedIn Developer Account** - [Sign up](https://www.linkedin.com/developers/) *(for LinkedIn)*
 
 ### 1. Get WhatsApp API Credentials
 
@@ -61,6 +72,11 @@ WHATSAPP_ACCESS_TOKEN=your_access_token_here
 WHATSAPP_CHANNEL_ID=your_channel_id_here
 WHATSAPP_WEBHOOK_VERIFY_TOKEN=your_custom_verify_token
 
+# LinkedIn API Configuration
+LINKEDIN_API_URL=https://api.linkedin.com/v2
+LINKEDIN_ACCESS_TOKEN=your_linkedin_access_token_here
+LINKEDIN_ORGANIZATION_URN=urn:li:organization:123456789
+
 # Database Configuration
 DB_HOST=localhost
 DB_PORT=5432
@@ -72,7 +88,10 @@ DB_DATABASE=gamyo_whatsapp
 PORT=3000
 ```
 
-**Important**: Replace `your_phone_number_id_here` and `your_access_token_here` with your actual Meta credentials.
+**Important**: 
+- Replace WhatsApp credentials with your actual Meta credentials
+- Replace LinkedIn credentials with your LinkedIn developer app credentials
+- See [LINKEDIN_INTEGRATION.md](LINKEDIN_INTEGRATION.md) for detailed LinkedIn setup
 
 ### 3. Start Database
 
@@ -115,6 +134,8 @@ Frontend will automatically open at `http://localhost:3001`
 
 ### Backend API (http://localhost:3000)
 
+#### WhatsApp Endpoints
+
 | Endpoint | Method | Description | Request Body |
 |----------|--------|-------------|--------------|
 | `/whatsapp/health` | GET | Health check | - |
@@ -123,6 +144,15 @@ Frontend will automatically open at `http://localhost:3001`
 | `/whatsapp/channel` | POST | Post channel update | `{ "message": "Announcement text" }` |
 | `/webhook` | GET | Webhook verification | - |
 | `/webhook` | POST | Receive WhatsApp events | - |
+
+#### LinkedIn Endpoints ✨ NEW
+
+| Endpoint | Method | Description | Request Body |
+|----------|--------|-------------|--------------|
+| `/linkedin/health` | GET | Health check | - |
+| `/linkedin/upload` | POST | Upload media | `{ "mediaUrl": "https://example.com/image.jpg" }` |
+| `/linkedin/post` | POST | Publish post | `{ "text": "Post content", "media": "urn:li:..." }` |
+| `/linkedin/organization` | GET | Get org info | - |
 
 ### Example API Calls
 
@@ -145,6 +175,13 @@ curl -X POST http://localhost:3000/whatsapp/broadcast \
 curl -X POST http://localhost:3000/whatsapp/channel \
   -H "Content-Type: application/json" \
   -d '{"message": "New product launch tomorrow!"}'
+```
+
+**Publish LinkedIn Post:**
+```bash
+curl -X POST http://localhost:3000/linkedin/post \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Exciting news from our team! #innovation"}'
 ```
 
 ## 🔧 Webhook Setup (Optional)
@@ -349,9 +386,17 @@ The broadcast service includes built-in rate limiting:
 
 ## 📚 Additional Resources
 
+### WhatsApp
 - [WhatsApp Business API Documentation](https://developers.facebook.com/docs/whatsapp/cloud-api)
 - [Meta Developer Portal](https://developers.facebook.com/)
 - [WhatsApp Business Manager](https://business.whatsapp.com/)
+
+### LinkedIn
+- [LinkedIn Marketing Developer Platform](https://docs.microsoft.com/en-us/linkedin/)
+- [LinkedIn Share API Documentation](https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/share-api)
+- [Detailed LinkedIn Integration Guide](LINKEDIN_INTEGRATION.md)
+
+### Frameworks & Tools
 - [NestJS Documentation](https://docs.nestjs.com/)
 - [React Documentation](https://react.dev/)
 - [Material-UI Documentation](https://mui.com/)

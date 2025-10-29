@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { HttpModule } from '@nestjs/axios';
 import { ScheduleModule } from '@nestjs/schedule';
 import { WhatsappModule } from './whatsapp/whatsapp.module';
+import { LinkedInModule } from './linkedin/linkedin.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { WhatsappModule } from './whatsapp/whatsapp.module';
     HttpModule,
     ScheduleModule.forRoot(),
     WhatsappModule,
+    LinkedInModule,
   ],
 })
 export class AppModule {}
