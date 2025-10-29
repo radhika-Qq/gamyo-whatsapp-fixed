@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import FacebookIcon from '@mui/icons-material/Facebook';
 import MessageIcon from '@mui/icons-material/Message';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import AnnouncementIcon from '@mui/icons-material/Announcement';
@@ -21,6 +22,7 @@ import MessageComposer from './components/MessageComposer';
 import BroadcastComposer from './components/BroadcastComposer';
 import ChannelManager from './components/ChannelManager';
 import LinkedInComposer from './components/LinkedInComposer';
+import FacebookComposer from './components/FacebookComposer';
 
 const theme = createTheme({
   palette: {
@@ -47,7 +49,8 @@ function App() {
         <AppBar position="static">
           <Toolbar>
             <WhatsAppIcon sx={{ mr: 1 }} />
-            <LinkedInIcon sx={{ mr: 2 }} />
+            <LinkedInIcon sx={{ mr: 1 }} />
+            <FacebookIcon sx={{ mr: 2 }} />
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               Gamyo Multi-Platform Integration
             </Typography>
@@ -63,13 +66,19 @@ function App() {
             <Tabs
               value={activeTab}
               onChange={handleTabChange}
-              variant="fullWidth"
+              variant="scrollable"
+              scrollButtons="auto"
               indicatorColor="primary"
               textColor="primary"
             >
               <Tab 
                 icon={<LinkedInIcon />} 
                 label="LinkedIn" 
+                iconPosition="start"
+              />
+              <Tab 
+                icon={<FacebookIcon />} 
+                label="Facebook" 
                 iconPosition="start"
               />
               <Tab 
@@ -91,9 +100,10 @@ function App() {
 
             <Box sx={{ p: 3 }}>
               {activeTab === 0 && <LinkedInComposer />}
-              {activeTab === 1 && <MessageComposer />}
-              {activeTab === 2 && <BroadcastComposer />}
-              {activeTab === 3 && <ChannelManager />}
+              {activeTab === 1 && <FacebookComposer />}
+              {activeTab === 2 && <MessageComposer />}
+              {activeTab === 3 && <BroadcastComposer />}
+              {activeTab === 4 && <ChannelManager />}
             </Box>
           </Paper>
         </Container>

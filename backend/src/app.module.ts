@@ -5,6 +5,7 @@ import { HttpModule } from '@nestjs/axios';
 import { ScheduleModule } from '@nestjs/schedule';
 import { WhatsappModule } from './whatsapp/whatsapp.module';
 import { LinkedInModule } from './linkedin/linkedin.module';
+import { FacebookModule } from './facebook/facebook.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { LinkedInModule } from './linkedin/linkedin.module';
     ScheduleModule.forRoot(),
     WhatsappModule,
     LinkedInModule,
+    FacebookModule,
   ],
 })
 export class AppModule {}
