@@ -15,6 +15,7 @@ import {
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import FacebookIcon from '@mui/icons-material/Facebook';
+import InstagramIcon from '@mui/icons-material/Instagram';
 import MessageIcon from '@mui/icons-material/Message';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import AnnouncementIcon from '@mui/icons-material/Announcement';
@@ -23,6 +24,7 @@ import BroadcastComposer from './components/BroadcastComposer';
 import ChannelManager from './components/ChannelManager';
 import LinkedInComposer from './components/LinkedInComposer';
 import FacebookComposer from './components/FacebookComposer';
+import InstagramComposer from './components/InstagramComposer';
 
 const theme = createTheme({
   palette: {
@@ -50,7 +52,8 @@ function App() {
           <Toolbar>
             <WhatsAppIcon sx={{ mr: 1 }} />
             <LinkedInIcon sx={{ mr: 1 }} />
-            <FacebookIcon sx={{ mr: 2 }} />
+            <FacebookIcon sx={{ mr: 1 }} />
+            <InstagramIcon sx={{ mr: 2 }} />
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               Gamyo Multi-Platform Integration
             </Typography>
@@ -82,6 +85,11 @@ function App() {
                 iconPosition="start"
               />
               <Tab 
+                icon={<InstagramIcon />} 
+                label="Instagram" 
+                iconPosition="start"
+              />
+              <Tab 
                 icon={<MessageIcon />} 
                 label="WhatsApp 1:1" 
                 iconPosition="start"
@@ -101,9 +109,10 @@ function App() {
             <Box sx={{ p: 3 }}>
               {activeTab === 0 && <LinkedInComposer />}
               {activeTab === 1 && <FacebookComposer />}
-              {activeTab === 2 && <MessageComposer />}
-              {activeTab === 3 && <BroadcastComposer />}
-              {activeTab === 4 && <ChannelManager />}
+              {activeTab === 2 && <InstagramComposer />}
+              {activeTab === 3 && <MessageComposer />}
+              {activeTab === 4 && <BroadcastComposer />}
+              {activeTab === 5 && <ChannelManager />}
             </Box>
           </Paper>
         </Container>
