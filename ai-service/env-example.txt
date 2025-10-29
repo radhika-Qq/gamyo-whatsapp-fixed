@@ -1,0 +1,18 @@
+# AI Microservice Environment Variables
+# Copy this file to .env and update with your values
+
+# OpenAI API Key
+OPENAI_API_KEY=your-openai-api-key-here
+
+# AI Service API Key (for authenticating requests from backend)
+AI_SERVICE_API_KEY=your-ai-service-api-key
+
+# Allowed origins for CORS
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001,http://localhost:5173
+
+# Port
+PORT=8000
+
+# Sentry DSN (optional)
+SENTRY_DSN=
+

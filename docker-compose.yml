@@ -1,21 +1,168 @@
+# Docker Compose configuration for Gamyo.ai
+# Full stack: Backend (Sails.js), Frontend (React), AI Service (FastAPI), MongoDB, Redis
+
 version: '3.8'
+
 services:
-  postgres:
-    image: postgres:14
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: gamyo_whatsapp
+  # ========================================
+  # MongoDB Database
+  # ========================================
+  mongodb:
+    image: mongo:7.0
+    container_name: gamyo-mongodb
+    restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-password}
+      MONGO_INITDB_DATABASE: gamyo
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - mongodb_data:/data/db
+    networks:
+      - gamyo-network
 
+  # ========================================
+  # Redis Cache & Queue
+  # ========================================
+  redis:
+    image: redis:7-alpine
+    container_name: gamyo-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - gamyo-network
+
+  # ========================================
+  # AI Microservice (FastAPI)
+  # ========================================
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    container_name: gamyo-ai-service
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      AI_SERVICE_API_KEY: ${AI_SERVICE_API_KEY}
+      ALLOWED_ORIGINS: http://localhost:3000,http://localhost:3001,http://localhost:5173
+      PORT: 8000
+    depends_on:
+      - redis
+    networks:
+      - gamyo-network
+
+  # ========================================
+  # Backend (Sails.js)
+  # ========================================
+  backend:
+    build:
+      context: ./backend-sails
+      dockerfile: Dockerfile
+    container_name: gamyo-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 3000
+      MONGO_URI: mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password}@mongodb:27017/gamyo?authSource=admin
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET}
+      SESSION_SECRET: ${SESSION_SECRET}
+      AI_SERVICE_URL: http://ai-service:8000
+      AI_SERVICE_API_KEY: ${AI_SERVICE_API_KEY}
+      WHATSAPP_API_URL: ${WHATSAPP_API_URL}
+      WHATSAPP_PHONE_NUMBER_ID: ${WHATSAPP_PHONE_NUMBER_ID}
+      WHATSAPP_ACCESS_TOKEN: ${WHATSAPP_ACCESS_TOKEN}
+      WHATSAPP_WEBHOOK_VERIFY_TOKEN: ${WHATSAPP_WEBHOOK_VERIFY_TOKEN}
+      FACEBOOK_API_URL: ${FACEBOOK_API_URL}
+      FACEBOOK_PAGE_ID: ${FACEBOOK_PAGE_ID}
+      FACEBOOK_ACCESS_TOKEN: ${FACEBOOK_ACCESS_TOKEN}
+      INSTAGRAM_API_URL: ${INSTAGRAM_API_URL}
+      INSTAGRAM_USER_ID: ${INSTAGRAM_USER_ID}
+      INSTAGRAM_ACCESS_TOKEN: ${INSTAGRAM_ACCESS_TOKEN}
+      LINKEDIN_API_URL: ${LINKEDIN_API_URL}
+      LINKEDIN_ACCESS_TOKEN: ${LINKEDIN_ACCESS_TOKEN}
+      LINKEDIN_ORGANIZATION_URN: ${LINKEDIN_ORGANIZATION_URN}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+    depends_on:
+      - mongodb
+      - redis
+      - ai-service
+    volumes:
+      - ./backend-sails:/app
+      - /app/node_modules
+    networks:
+      - gamyo-network
+
+  # ========================================
+  # Queue Worker (BullMQ)
+  # ========================================
+  worker:
+    build:
+      context: ./backend-sails
+      dockerfile: Dockerfile
+    container_name: gamyo-worker
+    restart: unless-stopped
+    command: node scripts/queueWorker.js
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MONGO_URI: mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password}@mongodb:27017/gamyo?authSource=admin
+    depends_on:
+      - mongodb
+      - redis
+    volumes:
+      - ./backend-sails:/app
+      - /app/node_modules
+    networks:
+      - gamyo-network
+
+  # ========================================
+  # Frontend (React + Vite)
+  # ========================================
+  frontend:
+    build:
+      context: ./frontend-vite
+      dockerfile: Dockerfile
+    container_name: gamyo-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:3000
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend-vite:/app
+      - /app/node_modules
+    networks:
+      - gamyo-network
+
+# ========================================
+# Volumes
+# ========================================
 volumes:
-  postgres_data:
+  mongodb_data:
+    driver: local
+  redis_data:
+    driver: local
 
+# ========================================
+# Networks
+# ========================================
+networks:
+  gamyo-network:
+    driver: bridge
